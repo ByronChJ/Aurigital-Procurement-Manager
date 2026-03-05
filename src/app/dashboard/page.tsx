@@ -5,7 +5,10 @@ import { LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import NewRequestModal from './NewRequestModal'
+import NuevaSolicitudForm from './NuevaSolicitudForm'
+import DetalleSolicitudModal from './DetalleSolicitudModal'
+import { AnularSolicitudButton } from './AnularSolicitudButton'
+import { NotificacionesDropdown } from '@/components/ui/NotificacionesDropdown'
 
 export default async function DashboardPage() {
     // Conectando a Supabase para verificar si el usuario tiene sesión activa
@@ -49,9 +52,20 @@ export default async function DashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                    <span className="text-sm text-gray-600 dark:text-gray-300 mr-2">
                         {profile?.full_name} ({profile?.role})
                     </span>
+
+                    {/* Link a Aprobaciones si el rol es superior */}
+                    {profile?.role !== 'comprador' && (
+                        <a href="/dashboard/aprobaciones" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline mr-4">
+                            Ir a Bandeja de Aprobaciones
+                        </a>
+                    )}
+
+                    {/* Componente Dropdown Interactio de Notificaciones */}
+                    <NotificacionesDropdown />
+
                     {/* Botón Salir utilizando server action de cerrar sesión */}
                     <form action={logout}>
                         <Button variant="ghost" className="text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition p-2">
@@ -67,8 +81,8 @@ export default async function DashboardPage() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Panel de Solicitudes</h1>
 
-                    {/* Modal Cliente para crear nuevas solicitudes */}
-                    <NewRequestModal />
+                    {/* Formulario Cliente interactivo Maestro-Detalle */}
+                    <NuevaSolicitudForm />
                 </div>
 
                 {/* Tarjetas KPI (Indicadores Clave de Rendimiento) */}
@@ -108,12 +122,14 @@ export default async function DashboardPage() {
                                 <TableHead>Monto</TableHead>
                                 <TableHead>Fecha</TableHead>
                                 <TableHead>Estado</TableHead>
+                                <TableHead className="w-[80px] text-center">Detalle</TableHead>
+                                <TableHead className="w-[100px] text-center">Acción</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {requests?.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="h-24 text-center text-gray-500">
+                                    <TableCell colSpan={6} className="h-24 text-center text-gray-500">
                                         No hay solicitudes registradas
                                     </TableCell>
                                 </TableRow>
@@ -138,6 +154,21 @@ export default async function DashboardPage() {
                                             `}>
                                                 {req.status.replace('_', ' ').toUpperCase()}
                                             </span>
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <DetalleSolicitudModal
+                                                requestId={req.id}
+                                                title={req.title}
+                                                total={Number(req.amount)}
+                                            />
+                                        </TableCell>
+                                        <TableCell className="text-center align-middle">
+                                            {/* El botón de Anular sólo renderiza si el status es 'pendiente_jefe' */}
+                                            <AnularSolicitudButton
+                                                requestId={req.id}
+                                                userId={user.id}
+                                                currentStatus={req.status}
+                                            />
                                         </TableCell>
                                     </TableRow>
                                 ))

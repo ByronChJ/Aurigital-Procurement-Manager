@@ -3,11 +3,13 @@ import { login } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input, Label } from '@/components/ui/forms'
 
-export default function LoginPage({
-    searchParams,
-}: {
-    searchParams: { message: string }
-}) {
+export default async function LoginPage(
+    props: {
+        searchParams: Promise<{ message?: string }>
+    }
+) {
+    const searchParams = await props.searchParams;
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
             <div className="w-full max-w-md space-y-8 rounded-xl bg-white dark:bg-gray-800 p-8 shadow-lg border border-gray-100 dark:border-gray-700">

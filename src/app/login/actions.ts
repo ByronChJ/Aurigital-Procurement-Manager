@@ -17,9 +17,13 @@ export async function login(formData: FormData) {
         password,
     })
 
-    // Si hay error, retornar al login con el mensaje de error
+    // Si hay error, retornar al login con el mensaje de error traducido
     if (error) {
-        return redirect(`/login?message=${error.message}`)
+        let errorMessage = error.message
+        if (errorMessage === 'Invalid login credentials') {
+            errorMessage = 'Autenticación fallida. Revisa tu correo y contraseña.'
+        }
+        return redirect(`/login?message=${encodeURIComponent(errorMessage)}`)
     }
 
     // Redirigir al dashboard si fue exitoso
