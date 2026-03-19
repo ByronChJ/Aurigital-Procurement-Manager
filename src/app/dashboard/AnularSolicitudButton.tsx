@@ -5,12 +5,12 @@ import { Ban } from 'lucide-react'
 import { anularSolicitudPropia } from './actions'
 import { Button } from '@/components/ui/button'
 
-export function AnularSolicitudButton({ requestId, userId, currentStatus }: { requestId: string, userId: string, currentStatus: string }) {
+export function AnularSolicitudButton({ requestId, currentUserId, ownerId, currentStatus }: { requestId: string, currentUserId: string, ownerId: string, currentStatus: string }) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // Ocultar botón si no está en el estado inicial permitido
-    if (currentStatus !== 'pendiente_jefe') {
+    // Ocultar botón si no está en el estado inicial permitido o si el usuario actual no es el dueño
+    if (currentStatus !== 'pendiente_jefe' || currentUserId !== ownerId) {
         return null // Desaparece de la UI como dictan las reglas
     }
 
@@ -21,7 +21,7 @@ export function AnularSolicitudButton({ requestId, userId, currentStatus }: { re
         setError(null)
         try {
             // Lógica asíncrona hacia el Server Action
-            const result = await anularSolicitudPropia(requestId, userId)
+            const result = await anularSolicitudPropia(requestId, currentUserId)
             if (result.error) {
                 setError(result.error)
             }

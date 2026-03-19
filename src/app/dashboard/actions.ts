@@ -273,22 +273,29 @@ export async function anularSolicitudPropia(requestId: string, userId: string) {
     if (request.user_id !== userId) return { error: 'No tienes permisos sobre esta solicitud' }
     if (request.status !== 'pendiente_jefe') return { error: 'Solo se pueden anular solicitudes en "Pendiente Jefe"' }
 
-    // Ejecutando la actualización a anulado
-    const { error: updateError } = await supabase
+    // Ejecutando la actualización a anulado, pedimos que devuelva el registro para confirmar
+    const { data: updatedData, error: updateError } = await supabase
         .from('requests')
         .update({ status: 'anulado' })
         .eq('id', requestId)
+        .select()
 
-    if (updateError) return { error: updateError.message }
+    if (updateError || !updatedData || updatedData.length === 0) {
+        return { 
+            error: updateError?.message || 'No se pudo anular. Verifica que tienes permisos de UPDATE (Políticas RLS) para tus propias solicitudes en tu base de datos Supabase.' 
+        }
+    }
 
     // Registro en bitácora de auditoría
-    await supabase.from('audit_logs').insert([
+    const { error: auditError } = await supabase.from('audit_logs').insert([
         {
             request_id: requestId,
             changed_by_user: userId,
             action: 'anulacion_usuario'
         }
     ])
+    
+    if (auditError) console.error('Error insertando en audit_logs para anulación:', auditError);
 
     revalidatePath('/dashboard')
     return { success: true }
@@ -325,9 +332,9 @@ export async function marcarNotificacionesLeidas() {
     if (user) {
         await supabase
             .from('notifications')
-            .update({ read: true })
+            .update({ is_read: true })
             .eq('user_id', user.id)
-            .eq('read', false)
+            .eq('is_read', false)
 
         revalidatePath('/dashboard')
     }

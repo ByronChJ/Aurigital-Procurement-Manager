@@ -34,6 +34,7 @@ export default async function DashboardPage() {
     const { data: requests } = await supabase
         .from('requests')
         .select('*')
+        .neq('status', 'anulado')
         .order('created_at', { ascending: false })
 
     // Cálculo rápido de KPIs para el Dashboard
@@ -163,10 +164,11 @@ export default async function DashboardPage() {
                                             />
                                         </TableCell>
                                         <TableCell className="text-center align-middle">
-                                            {/* El botón de Anular sólo renderiza si el status es 'pendiente_jefe' */}
+                                            {/* El botón de Anular sólo renderiza si el status es 'pendiente_jefe' y el usuario actual es el dueño */}
                                             <AnularSolicitudButton
                                                 requestId={req.id}
-                                                userId={user.id}
+                                                currentUserId={user.id}
+                                                ownerId={req.user_id}
                                                 currentStatus={req.status}
                                             />
                                         </TableCell>

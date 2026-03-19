@@ -13,7 +13,7 @@ export function NotificacionesDropdown() {
         getMisNotificaciones().then(data => setNotificaciones(data))
     }, [])
 
-    const hasUnread = notificaciones.some(n => !n.read)
+    const hasUnread = notificaciones.some(n => !n.is_read)
 
     const toggleDropdown = async () => {
         const newValue = !isOpen
@@ -23,7 +23,7 @@ export function NotificacionesDropdown() {
         if (newValue && hasUnread) {
             await marcarNotificacionesLeidas()
             // Limpia el badge en la UI inmediatamente
-            setNotificaciones(prev => prev.map(n => ({ ...n, read: true })))
+            setNotificaciones(prev => prev.map(n => ({ ...n, is_read: true })))
         }
     }
 
@@ -54,7 +54,7 @@ export function NotificacionesDropdown() {
                             </div>
                         ) : (
                             notificaciones.map(noti => (
-                                <div key={noti.id} className={`p-4 border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${!noti.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
+                                <div key={noti.id} className={`p-4 border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${!noti.is_read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
                                     <p className="text-sm text-gray-800 dark:text-gray-200">{noti.message}</p>
                                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                         {new Date(noti.created_at).toLocaleDateString()} a las {new Date(noti.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
