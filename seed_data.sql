@@ -45,10 +45,17 @@ INSERT INTO public.request_items (request_id, product_id, quantity, unit_price) 
 
 -- 4.3. Solicitud 3: Pendiente Financiero (pasó por el jefe, va al financiero 1)
 INSERT INTO public.requests (id, user_id, title, description, amount, status, created_at) VALUES
-('cccccccc-cccc-cccc-cccc-000000000003', 'f17778c6-540b-4f0c-bfe8-cd00a34d50d3', 'Sillas para gerencia', 'Mobiliario nuevo', 1200.00, 'pendiente_financiero', now() - interval '1 day');
+('cccccccc-cccc-cccc-cccc-000000000003', 'f17778c6-540b-4f0c-bfe8-cd00a34d50d3', 'Monitores extra', 'Monitores nuevos para diseño', 701.00, 'pendiente_financiero', now() - interval '1 day');
 
 INSERT INTO public.request_items (request_id, product_id, quantity, unit_price) VALUES
-('cccccccc-cccc-cccc-cccc-000000000003', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000004', 1, 1200.00);
+('cccccccc-cccc-cccc-cccc-000000000003', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000002', 2, 350.50);
+
+-- 4.4. Solicitud 4: Lista para aprobar en Demo (Pendiente Jefe)
+INSERT INTO public.requests (id, user_id, title, description, amount, status, created_at) VALUES
+('cccccccc-cccc-cccc-cccc-000000000004', 'f17778c6-540b-4f0c-bfe8-cd00a34d50d3', 'Licencia extra para QA', 'Licencia para hacer pruebas', 150.00, 'pendiente_jefe', now() - interval '30 minutes');
+
+INSERT INTO public.request_items (request_id, product_id, quantity, unit_price) VALUES
+('cccccccc-cccc-cccc-cccc-000000000004', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 1, 150.00);
 
 -- 5. Llenar Historicos en Bitácora
 INSERT INTO public.audit_logs (request_id, changed_by_user, action, timestamp) VALUES
@@ -57,9 +64,10 @@ INSERT INTO public.audit_logs (request_id, changed_by_user, action, timestamp) V
 ('cccccccc-cccc-cccc-cccc-000000000001', 'da53f478-66de-4f73-957a-4bb124f1d058', 'aprobacion', now() - interval '1 day'),
 ('cccccccc-cccc-cccc-cccc-000000000002', 'f17778c6-540b-4f0c-bfe8-cd00a34d50d3', 'creacion', now() - interval '2 hours'),
 ('cccccccc-cccc-cccc-cccc-000000000003', 'f17778c6-540b-4f0c-bfe8-cd00a34d50d3', 'creacion', now() - interval '2 days'),
-('cccccccc-cccc-cccc-cccc-000000000003', 'a95dd1b2-2038-4fc7-be00-cf3e10af5ca5', 'aprobacion', now() - interval '1 day');
+('cccccccc-cccc-cccc-cccc-000000000003', 'a95dd1b2-2038-4fc7-be00-cf3e10af5ca5', 'aprobacion', now() - interval '1 day'),
+('cccccccc-cccc-cccc-cccc-000000000004', 'f17778c6-540b-4f0c-bfe8-cd00a34d50d3', 'creacion', now() - interval '30 minutes');
 
 -- 6. Notificación para el Financiero y Comprador (usando is_read de tu esquema)
 INSERT INTO public.notifications (user_id, request_id, message, is_read, created_at) VALUES
-('da53f478-66de-4f73-957a-4bb124f1d058', 'cccccccc-cccc-cccc-cccc-000000000003', 'Nueva solicitud "Sillas para gerencia" en tu bandeja para aprobación.', false, now()),
+('da53f478-66de-4f73-957a-4bb124f1d058', 'cccccccc-cccc-cccc-cccc-000000000003', 'Nueva solicitud "Monitores extra" en tu bandeja para aprobación.', false, now()),
 ('f17778c6-540b-4f0c-bfe8-cd00a34d50d3', 'cccccccc-cccc-cccc-cccc-000000000001', 'Tu solicitud "Renovación Licencias Abril" ha sido APROBADA.', true, now() - interval '1 day');

@@ -66,6 +66,16 @@ export async function createRequestAction(formData: FormData, cartItems: any[]) 
                 action: 'creacion'
             }
         ])
+
+        // Notificar al Jefe sobre la nueva solicitud
+        const { data: profile } = await supabase.from('profiles').select('boss_id').eq('id', user.id).single()
+        if (profile?.boss_id) {
+            await supabase.from('notifications').insert([{
+                user_id: profile.boss_id,
+                request_id: newRequest.id,
+                message: `Nueva solicitud "${title}" en tu bandeja para aprobación.`
+            }])
+        }
     }
 
     revalidatePath('/dashboard')
@@ -221,7 +231,7 @@ export async function actualizarEstadoSolicitud(requestId: string, accion: 'apro
         .from('requests')
         .update(updateData)
         .eq('id', requestId)
-        .select('user_id, title')
+        .select('user_id, title, amount')
         .single()
 
     if (updateError) return { error: updateError.message }
@@ -237,12 +247,43 @@ export async function actualizarEstadoSolicitud(requestId: string, accion: 'apro
 
     // Enviar notificación (simulando correo) al autor original
     if (updatedRequest) {
-        await supabase.from('notifications').insert([
+        const { error: noti1Err } = await supabase.from('notifications').insert([
             {
                 user_id: updatedRequest.user_id,
+                request_id: requestId,
                 message: `Tu solicitud "${updatedRequest.title}" ha cambiado de estado a: ${nuevoEstado.replace('_', ' ').toUpperCase()}`
             }
-        ]).select()
+        ])
+        if (noti1Err) console.error("Error insertando notificación al autor:", noti1Err)
+
+        // Si el estado es pendiente_financiero, notificar a los revisores correspondientes
+        if (nuevoEstado === 'pendiente_financiero') {
+            let roleToNotify = 'financiero_1';
+            const reqAmount = Number(updatedRequest.amount);
+            
+            if (reqAmount > 5000) {
+                roleToNotify = 'financiero_3';
+            } else if (reqAmount > 1000) {
+                roleToNotify = 'financiero_2';
+            }
+
+            // Buscar usuarios con ese rol de financiero
+            const { data: financieros } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('role', roleToNotify);
+
+            if (financieros && financieros.length > 0) {
+                const notificationsToInsert = financieros.map(f => ({
+                    user_id: f.id,
+                    request_id: requestId,
+                    message: `Nueva solicitud "${updatedRequest.title}" en tu bandeja para aprobación.`
+                }));
+
+                const { error: noti2Err } = await supabase.from('notifications').insert(notificationsToInsert);
+                if (noti2Err) console.error("Error insertando notificaciones a financieros:", noti2Err);
+            }
+        }
     }
 
     // Refrescamos vistas
