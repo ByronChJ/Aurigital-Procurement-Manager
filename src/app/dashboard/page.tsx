@@ -9,6 +9,7 @@ import NuevaSolicitudForm from './NuevaSolicitudForm'
 import DetalleSolicitudModal from './DetalleSolicitudModal'
 import { AnularSolicitudButton } from './AnularSolicitudButton'
 import { NotificacionesDropdown } from '@/components/ui/NotificacionesDropdown'
+import { NavBarSuperior } from '@/components/ui/NavBarSuperior'
 
 export default async function DashboardPage() {
     // Conectando a Supabase para verificar si el usuario tiene sesión activa
@@ -45,36 +46,8 @@ export default async function DashboardPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 
-            {/* Navbar Superior del Dashboard */}
-            <nav className="border-b bg-white dark:bg-gray-800 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className="bg-blue-600 text-white p-2 rounded-lg font-bold">A</div>
-                    <span className="text-xl font-bold dark:text-white">Aurigital</span>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-600 dark:text-gray-300 mr-2">
-                        {profile?.full_name} ({profile?.role})
-                    </span>
-
-                    {/* Link a Aprobaciones si el rol es superior */}
-                    {profile?.role !== 'comprador' && (
-                        <a href="/dashboard/aprobaciones" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline mr-4">
-                            Ir a Bandeja de Aprobaciones
-                        </a>
-                    )}
-
-                    {/* Componente Dropdown Interactio de Notificaciones */}
-                    <NotificacionesDropdown />
-
-                    {/* Botón Salir utilizando server action de cerrar sesión */}
-                    <form action={logout}>
-                        <Button variant="ghost" className="text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition p-2">
-                            <LogOut size={20} />
-                        </Button>
-                    </form>
-                </div>
-            </nav>
+            {/* Navbar Superior del Dashboard abstraído */}
+            <NavBarSuperior profile={profile} tituloFlujo="Panel de Solicitudes" />
 
             {/* Contenido Principal */}
             <main className="max-w-7xl mx-auto px-6 py-8">

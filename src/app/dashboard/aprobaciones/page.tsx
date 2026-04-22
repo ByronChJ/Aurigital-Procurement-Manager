@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { getBandejaAprobaciones } from '@/app/dashboard/actions'
 import { AprobacionActions } from './AprobacionActions'
 import DetalleSolicitudModal from '@/app/dashboard/DetalleSolicitudModal'
-import { NotificacionesDropdown } from '@/components/ui/NotificacionesDropdown'
+import { NavBarSuperior } from '@/components/ui/NavBarSuperior'
 
 export default async function AprobacionesPage() {
     // 1. Conexión segura en el Server Component
@@ -34,28 +34,8 @@ export default async function AprobacionesPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            {/* Navbar Exclusiva para la Bandeja de Aprobaciones */}
-            <nav className="border-b bg-white dark:bg-gray-800 dark:border-gray-700 px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
-                <div className="flex items-center gap-4">
-                    <a href="/dashboard" className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition group flex items-center gap-2">
-                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-sm font-semibold">Regresar</span>
-                    </a>
-                    <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
-                    <h1 className="text-lg md:text-xl font-bold dark:text-white flex items-center gap-2">
-                        <span className="bg-blue-600 text-white p-1.5 rounded-md text-xs">J/F</span>
-                        Bandeja de Aprobaciones
-                    </h1>
-                </div>
-                <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200 mr-2">
-                        {profile.full_name} <span className="text-gray-400 dark:text-gray-500 font-normal">({profile.role.replace('_', ' ').toUpperCase()})</span>
-                    </span>
-
-                    {/* Componente Interactivo de Notificaciones */}
-                    <NotificacionesDropdown />
-                </div>
-            </nav>
+            {/* Navbar Exclusiva Abstraída */}
+            <NavBarSuperior profile={profile} tituloFlujo="Bandeja de Aprobaciones" />
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
