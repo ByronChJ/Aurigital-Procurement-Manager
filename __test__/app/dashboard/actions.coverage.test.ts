@@ -131,7 +131,7 @@ describe('actions: bandeja, notificaciones y ramas adicionales', () => {
     ['financiero_1' as const, { lte: true }],
     ['financiero_2' as const, { range: true }],
     ['financiero_3' as const, { high: true }],
-  ])('getBandeja: %s aplica filtro de monto', async (role) => {
+  ])('getBandeja: %s aplica filtro de monto', async (role: string, _opts: any) => {
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: 'f' } } })
     const steps: string[] = []
     const queryBuilder: any = {

@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 
 // 1. Obtener Métricas del Dashboard (Por Estado y Monto de Aprobadas)
-export async function getMetricasDashboard() {
+export async function getMetricasDashboard(fechaInicio?: string, fechaFin?: string) {
     const supabase = await createClient()
 
     // Verificamos permisos (solo jefe o financieros)
@@ -11,9 +11,19 @@ export async function getMetricasDashboard() {
     if (!user) return { error: 'No autenticado' }
 
     // Traemos solicitudes con información del departamento del autor (vía join con profiles)
-    const { data: requests, error } = await supabase
+    let query = supabase
         .from('requests')
         .select('status, amount, created_at, profiles ( department )')
+        
+    // Agregamos filtros si las fechas existen (lógica SQL Between)
+    if (fechaInicio) {
+        query = query.gte('created_at', `${fechaInicio}T00:00:00Z`)
+    }
+    if (fechaFin) {
+        query = query.lte('created_at', `${fechaFin}T23:59:59Z`)
+    }
+
+    const { data: requests, error } = await query
         
     if (error) {
         console.error('Error al obtener métricas:', error)
